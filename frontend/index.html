@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchainas</title> 
+    <link href="reset.css" rel="stylesheet"> 
+    <link href="styles.css" rel="stylesheet" type="text/css">
+</head>
+ 
+<body>
+  <header>
+    <h2>Rental Agreement smart contract</h2>
+  </header>
+
+  <div class="content">
+
+    <div class="addressSection">
+      <div>
+        <p>Currently connected:&nbsp</p><p id="wallet-address"> xxxxxxx</p> 
+      </div>
+       
+        <button class="buttonTheme" id="connectMetamask">Connect metamask!</button>
+        <button class="buttonTheme" id="cancel">Cancel</button>
+    </div>
+
+
+
+  
+   
+
+
+
+    <div class="card-box">
+
+      <div class="card big">
+        <p> Contract details</p>
+        
+        <div>
+          <p id="contractLandlord">Landlord address: </p>
+          <p id="contractDeposit">Deposit:</p>
+          <p id="contractDuration">Duration:</p>
+
+        </div>
+      </div>
+
+
+      <div>
+        <div class="card">
+          <div>Contract balance</div>
+          <div id="contractBalance">xxx ETH</div>
+        </div>
+
+        <div class="card">
+          <h3>Current month</h3>
+          <div id="currentMonth">x/y</div>
+        </div>
+
+        <div class="card">
+          <h3>Monthly rent</h3>
+          <div id="monthlyRent">xxx ETH</div>
+        </div>
+
+        <div class="card" id="contractState">
+          <h3>Status</h3>
+          <div id="state"></div>
+        </div>
+      </div>
+
+
+
+    </div>
+
+    <div class="section1">
+      <div class="subsection">
+        <h2>Landlord actions</h2>
+      </div>
+      
+
+
+      <div>
+        <label for="inspectorAddress">Set Inspector Address</label> <br>
+        <input id="inspectorAddress" name="inspectorAddress" value="0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc"> 
+        <button class="buttonTheme" id="setInspectorAddress">Set</button>
+      </div>
+
+      
+      <div>
+        <label for="tenantAddress">Set Tenant Address</label> <br>
+        <input id="tenantAddress" name="tenantAddress" value="0x90f79bf6eb2c4f870365e785982e1f101e93b906">
+        <button class="buttonTheme" id="setTenantAddress">Set</button>
+      </div>
+      
+
+      
+    </div>
+
+    <!-------------------------------------------------------------------->
+    <!-- INSPECTOR ACTIONS ----------------------------------------------->
+    <div class="section2">
+      <h2 id="headerInspector">Inspector actions (not confirmed)</h2>
+
+      <div>
+        <p id="expectedInspectorAddress">Address: (Not loaded yet)</p> 
+        <p>Damage status: false</p>
+      </div>
+      
+
+      <div class = "subsection">
+        <button  class="buttonTheme" id="confirmInspector"disabled>Confirm yourself</button>
+        <button  class="buttonTheme" id="reportDamage"disabled>Report damage</button>
+        
+      </div>
+    </div>
+
+    <!-------------------------------------------------------------------->
+    <!-- TENANT ACTIONS ----------------------------------------------->
+    <div class="section3">
+      <h2 id="headerTenant">Tenant actions (not confirmed)</h2>
+      <div>
+        <p id="expectedTenantAddress">Address: (Not loaded yet)</p> 
+
+      </div>
+
+      <div class = "subsection">
+        <button class="buttonTheme" id="confirmTenant" disabled>Confirm yourself</button>
+        <button class="buttonTheme" id="payRent" disabled>Pay rent</button>
+
+        <button class="buttonTheme" id="releaseDeposit" disabled>Get deposit</button>
+        
+        
+      </div>
+    </div>
+
+    
+  
+  </div>
+
+  <footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
