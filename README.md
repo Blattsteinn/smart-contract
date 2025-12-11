@@ -1,5 +1,5 @@
 # House agreement smart contract
-This repository showcases a simple house agreement dApp for Ethereum blockchain, having 3 parties involved - landlord, tenant and inspector.
+This repository showcases a simple house agreement dApp for Ethereum blockchain, having 3 parties involved - `landlord`, `tenant` and `inspector`.
 
 
 ## Smart contract participants 
@@ -28,3 +28,7 @@ This repository showcases a simple house agreement dApp for Ethereum blockchain,
       - Tenant and landlord can cancel contract at any time. If tenant cancels it, landlord receives deposit. If landlord cancels it tenant receives the deposit back.
 5. Tenant pays each month
 6. Smart contract ends, if there is no damage reported tenant receives deposit back.
+
+
+<img width="671" height="511" alt="Untitled Diagram drawio (15)" src="https://github.com/user-attachments/assets/8467908d-1107-4ec7-ac6a-5d63585ed070" />
+
