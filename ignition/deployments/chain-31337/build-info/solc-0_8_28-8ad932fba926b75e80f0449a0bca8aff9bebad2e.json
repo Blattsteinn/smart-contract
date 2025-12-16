@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-8ad932fba926b75e80f0449a0bca8aff9bebad2e",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/rental.sol": "project/contracts/rental.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/rental.sol": {
+        "content": "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.8.2 <0.9.0;\n\n\ncontract MyContract {\n    event InspectorSet(address indexed inspector);\n    event InspectorConfirmed(address indexed inspector);\n    event TenantSet(address indexed tenant);\n    event TenantConfirmed(address indexed tenant, uint amount);\n    event RentPaid(uint month, uint amount);\n    event DamageReported(bool isDamaged, address reporter);\n    event ContractCancelled(address by);\n    event DepositReleased(address to, uint amount);\n    event StateChanged(ContractState newState);\n\n\n    enum ContractState { Created, InspectorSet, Active, Ended }\n    ContractState public state = ContractState.Created;\n\n    uint current_month = 0;\n\n    // Landlord sets this:\n    address landlordAddress;\n\n    bool depositRelease = false;\n    uint duration;\n    uint rentAmount;\n    uint depositAmount;\n\n\n    // Tenant, must pay deposit + 1st month\n    // Can cancel rent \n    address pendingTenant;\n    address tenantAddress;\n\n    // Checks wherever something was damaged\n    address pendingInspector;\n    address inspectorAddress;\n    bool isDamaged = false;\n\n\n    constructor(uint _rentAmount, uint _depositAmount, uint _duration) {\n            landlordAddress = msg.sender;\n            rentAmount = _rentAmount;\n            depositAmount = _depositAmount;\n            duration = _duration;\n        }\n\n\n    function cancel() external payable {\n        require(msg.sender == tenantAddress || msg.sender == landlordAddress, \"Only landlord / tenant can cancel!\");\n        require(state == ContractState.Active, \"Contract has ended, you can't cancel!\");\n\n\n        if(msg.sender == tenantAddress){\n            payable(landlordAddress).transfer(depositAmount);   \n        }\n        else if(msg.sender == landlordAddress){\n            payable(tenantAddress).transfer(depositAmount); \n        }\n\n        state = ContractState.Ended;\n        emit StateChanged(state);\n        emit ContractCancelled(msg.sender);\n    }\n\n    function releaseDeposit() external {\n        require(state == ContractState.Ended, \"Contract must be ended!\");\n        \n        if(isDamaged){\n            payable(landlordAddress).transfer(depositAmount);\n            emit DepositReleased(landlordAddress, depositAmount);\n        } \n        else {\n            payable(tenantAddress).transfer(depositAmount);\n            \n            emit DepositReleased(tenantAddress, depositAmount);\n        }\n\n \n\n    }\n\n// Tenant functions:\n    function setTenant(address tenant) external  {\n        require(tenantAddress == address(0), \"Tenant already confirmed and locked!\");\n        require(msg.sender == landlordAddress, \"Only landlord can set!\");\n        pendingTenant = tenant;\n\n        emit TenantSet(pendingTenant);\n    }\n\n    function confirmTenant() external payable {\n        require(inspectorAddress != address(0), \"Inspector must confirm before you!\");\n        require(msg.sender == pendingTenant, \"Only tenant can confirm!\");\n        require(msg.value == rentAmount + depositAmount, \"Must pay exact rent+deposit amount!\");\n\n        tenantAddress = pendingTenant;\n        pendingTenant = address(0); // Clear pending tenant\n\n        // pay deposit & rent for first month\n        payable(landlordAddress).transfer(rentAmount);\n        current_month ++;\n\n        state = ContractState.Active;\n        emit StateChanged(state);\n\n        emit TenantConfirmed(tenantAddress, rentAmount+depositAmount);\n\n    }\n\n\n    function tenantPays() external payable {\n        require(tenantAddress != address(0), \"No tenant confirmed yet!\");\n        require(msg.sender == tenantAddress, \"Only tenant can pay\");\n        require(msg.value == rentAmount, \"Must pay exact rent amount\");\n        require(state == ContractState.Active, \"Must be active\");\n        payable(landlordAddress).transfer(rentAmount);\n        emit RentPaid(current_month, rentAmount);\n\n        current_month++;\n\n        if(current_month == duration){\n            state = ContractState.Ended;\n            emit StateChanged(state);\n        }\n    }\n    \n//  -------------------------\n    function setInspector(address inspector) external  {\n        require(inspectorAddress == address(0), \"Inspector already confirmed and locked!\");\n        require(msg.sender == landlordAddress, \"Only landlord can set!\");\n        pendingInspector = inspector;\n\n        emit InspectorSet(pendingInspector);\n    }\n\n    function confirmInspector() external payable {\n        require(msg.sender == pendingInspector, \"Only inspector can confirm!\");\n        inspectorAddress = pendingInspector;\n        pendingInspector = address(0);\n\n        state = ContractState.InspectorSet;\n        emit StateChanged(state);\n\n        emit InspectorConfirmed(inspectorAddress);\n    }\n\n    function damageStatus(bool value) external{\n        require(msg.sender == inspectorAddress, \"Only inspector can set\");\n        isDamaged = value;\n\n        emit DamageReported(isDamaged, inspectorAddress);\n    }\n// -------------------------\n\n    function getLandlord() public view returns (address) { return landlordAddress;}\n\n    function getTenant() public view returns (address) { return tenantAddress; }\n    function getPendingTenant() public view returns (address) { return pendingTenant;}\n\n    function getInspector() public view returns (address) { return inspectorAddress;}\n    function getPendingInspector() public view returns (address) { return pendingInspector;}\n\n\n    function getMonth() public view returns(uint) { return current_month;}\n\n    function getMonthlyRent() public view returns(uint){ return rentAmount;}\n    function getDeposit() public view returns(uint){ return depositAmount;}\n    function getDuration() public view returns(uint){ return duration;}\n    \n    function getContractBalance() public view returns(uint){ return address(this).balance;}\n}"
+      }
+    }
+  }
+}
